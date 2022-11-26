@@ -1,0 +1,159 @@
+require:
+  - rubocop-minitest
+  - rubocop-rails
+
+Style/AndOr:
+  EnforcedStyle: conditionals
+
+# https://github.com/rubocop-hq/ruby-style-guide#consistent-classes
+Layout/ClassStructure:
+  Enabled: true
+
+Layout/DotPosition:
+  EnforcedStyle: trailing
+
+Layout/FirstArrayElementIndentation:
+  EnforcedStyle: consistent
+
+Layout/FirstHashElementIndentation:
+  EnforcedStyle: consistent
+
+Layout/LineLength:
+  Enabled: false
+
+Layout/MultilineMethodCallIndentation:
+  EnforcedStyle: indented
+
+Layout/MultilineOperationIndentation:
+  EnforcedStyle: indented
+
+Layout/ParameterAlignment:
+  EnforcedStyle: with_fixed_indentation
+
+Lint/EmptyBlock:
+  Enabled: false
+
+Lint/MissingSuper:
+  Enabled: false
+
+Lint/NoReturnInBeginEndBlocks:
+  Enabled: false
+
+Metrics/ClassLength:
+  Exclude:
+    - 'test/**/*'
+
+Metrics/CyclomaticComplexity:
+  Enabled: false
+
+Metrics/MethodLength:
+  Exclude:
+    - 'db/migrate/*'
+
+Metrics/PerceivedComplexity:
+  Enabled: false
+
+Naming/MemoizedInstanceVariableName:
+  EnforcedStyleForLeadingUnderscores: optional
+
+Style/CombinableLoops:
+  Enabled: false
+
+Style/Documentation:
+  Enabled: false
+
+Style/DoubleNegation:
+  Enabled: false
+
+Style/FormatStringToken:
+  EnforcedStyle: template
+  Exclude:
+    - 'app/models/email_event.rb'
+    - 'lib/ext/money_formats.rb'
+
+Style/MethodCalledOnDoEndBlock:
+  Exclude:
+    - 'app/helpers/elections_helper.rb'
+    - 'app/helpers/notifications_helper.rb'
+    - 'app/lib/reckon/voting_system/single_transferable_vote.rb'
+    - 'app/models/feature_flag.rb'
+    - 'app/models/invitation.rb'
+    - 'app/presenters/election_presenter.rb'
+    - 'app/presenters/elections_presenter/invitations_presenter.rb'
+    - 'app/services/collect_comments.rb'
+    - 'app/services/import_paper_ballots.rb'
+    - 'app/services/load_filtered_invitations.rb'
+    - 'app/services/reporting_groups/remove_unused_subgroups.rb'
+    - 'app/services/send_invitations_batch.rb'
+    - 'app/services/tally_results.rb'
+    - 'app/services/voter_specific_tags.rb'
+    - 'app/validators/voter_list/postal_format_validator.rb'
+    - 'test/services/tally_preferential_results_test.rb'
+    - 'test/services/tally_scored_results_test.rb'
+    - 'test/test_helper_methods.rb'
+  Enabled: true
+
+Style/OptionalBooleanParameter:
+  Enabled: false
+
+Style/RegexpLiteral:
+  AllowInnerSlashes: true
+
+Style/StringConcatenation:
+  Enabled: false
+
+Style/SymbolArray:
+  EnforcedStyle: brackets
+
+Style/SymbolProc:
+  Exclude:
+    - 'test/factories/*'
+    - 'db/migrate/20200218175917_create_meetings.rb'
+
+Rails:
+  Enabled: true
+
+Rails/UnknownEnv:
+  Environments:
+    - development
+    - test
+    - production
+    - staging
+
+Rails/BulkChangeTable:
+  Enabled: false
+
+Rails/Output:
+  Exclude:
+    - 'config/deploy.rb'
+    - 'config/deploy/staging.rb'
+    - 'config/deploy/production.rb'
+
+Rails/DynamicFindBy:
+  Exclude:
+    - 'app/controllers/api/**/*'
+    - 'app/actions/**/*'
+    - 'app/adapters/**/*'
+    - 'app/repositories/**/*'
+    - 'app/contracts/**/*'
+    - 'test/controllers/api/**/*'
+    - 'test/actions/**/*'
+    - 'test/adapters/**/*'
+    - 'test/repositories/**/*'
+    - 'test/contracts/**/*'
+
+Rails/CreateTableWithTimestamps:
+  Enabled: false
+
+AllCops:
+  UseCache: true
+  CacheRootDirectory: .rubocop-cache
+  MaxFilesInCache: 2000
+  NewCops: enable
+  TargetRubyVersion: 2.7
+  Exclude:
+    - 'db/schema.rb'
+    - 'vendor/**/*'
+    - 'node_modules/**/*'
+    - 'tmp/**/*'
+    - 'bin/*'
