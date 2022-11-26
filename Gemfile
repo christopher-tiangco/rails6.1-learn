@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
@@ -38,8 +40,8 @@ group :development do
   gem 'web-console', '>= 4.1.0'
   # Display performance information such as SQL time and flame graphs for each request in your browser.
   # Can be configured to work on production as well see: https://github.com/MiniProfiler/rack-mini-profiler/blob/master/README.md
-  gem 'rack-mini-profiler', '~> 2.0'
   gem 'listen', '~> 3.3'
+  gem 'rack-mini-profiler', '~> 2.0'
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
 end
@@ -55,12 +57,12 @@ end
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
-gem "erb_lint", "~> 0.3.1", :groups => [:development, :test]
+gem 'erb_lint', '~> 0.3.1', groups: [:development, :test]
 
-gem "rubocop", "~> 1.39", :groups => [:development, :test]
+gem 'rubocop', '~> 1.39', groups: [:development, :test]
 
-gem "rubocop-minitest", "~> 0.23.2", :groups => [:development, :test]
+gem 'rubocop-minitest', '~> 0.23.2', groups: [:development, :test]
 
-gem "rubocop-rails", "~> 2.17", :groups => [:development, :test]
+gem 'rubocop-rails', '~> 2.17', groups: [:development, :test]
 
-gem "bundler-audit", "~> 0.9.1", :groups => [:development, :test]
+gem 'bundler-audit', '~> 0.9.1', groups: [:development, :test]
