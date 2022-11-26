@@ -1,0 +1,105 @@
+name: CI
+
+on:
+  #push:
+  #  branches: [ "master" ]
+  #pull_request:
+  #  branches: [ "master" ]
+
+  workflow_dispatch:
+
+jobs:
+  rubocop-linter:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Ruby 2.7.4
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 2.7.4
+        bundler-cache: true
+        
+    - name: Install Rubocop
+      run: |
+        gem install rubocop -v $(grep "rubocop ([0-9.]*)" Gemfile.lock | grep -o "[0-9.]*")
+        gem install rubocop-minitest -v $(grep "rubocop-minitest ([0-9.]*)" Gemfile.lock | grep -o "[0-9.]*")
+        gem install rubocop-rails -v $(grep "rubocop-rails ([0-9.]*)" Gemfile.lock | grep -o "[0-9.]*")
+        
+    - name: Run rubocop
+      run: rubocop
+
+  erb-linter:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Ruby 2.7.4
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 2.7.4
+        bundler-cache: true
+        
+    - name: Install erblint dependencies
+      run: |
+        gem install rubocop -v $(grep "rubocop ([0-9.]*)" Gemfile.lock | grep -o "[0-9.]*")
+        gem install rubocop-minitest -v $(grep "rubocop-minitest ([0-9.]*)" Gemfile.lock | grep -o "[0-9.]*")
+        gem install rubocop-rails -v $(grep "rubocop-rails ([0-9.]*)" Gemfile.lock | grep -o "[0-9.]*")
+        
+    - name: Install erblint
+      run: gem install erb_lint -v $(grep "erb_lint ([0-9.]*)" Gemfile.lock | grep -o "[0-9.]*")
+      
+    - name: Run erblint
+      run: erblint -all
+      
+  secure-dependencies:
+    name: Check for dependency vulnerability
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Ruby 2.7.4
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 2.7.4
+        bundler-cache: true
+        
+    - name: Install bundler-audit
+      run: gem install bundler-audit -v $(grep "bundler-audit ([0-9.]*)" Gemfile.lock | grep -o "[0-9.]*")
+      
+    # Temporarily disabling dependency security checks until we figure out a better way to handle slow bundle installs w/o having to pin version in the base docker image
+    #- name: Run bundler-audit
+    #  run: bundle exec bundler-audit --update
+
+  tests:
+    name: Integration, Functional and unit tests with Minitest
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:12-alpine
+        env:
+          POSTGRES_DB: learn-rails_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Ruby 2.7.4
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 2.7.4
+        bundler-cache: true
+
+    - name: Setup test database
+      env:
+        RAILS_ENV: test
+        POSTGRES_HOST: localhost
+        POSTGRES_DB: learn-rails_test
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_PORT: 5432
+      run: bundle exec bin/rails db:setup
+
+    - name: Run test
+      run: bundle exec bin/rails test
