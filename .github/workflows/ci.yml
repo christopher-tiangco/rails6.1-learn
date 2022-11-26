@@ -95,11 +95,11 @@ jobs:
       env:
         RAILS_ENV: test
         POSTGRES_HOST: localhost
-        POSTGRES_DB: learn-rails_test
+        POSTGRES_DB: learn-rails
         POSTGRES_USER: postgres
         POSTGRES_PASSWORD: postgres
         POSTGRES_PORT: 5432
-      run: bundle exec bin/rails db:setup
+      run: bundle exec bin/rails db:setup && bundle exec bin/rails db:migrate
 
     - name: Run test
       run: bundle exec bin/rails test
