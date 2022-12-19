@@ -119,9 +119,9 @@ RUN mkdir -p tmp/pids
 # Required shared library for postgresql
 RUN apt update && apt install libpq5 -y
 
-# Create the master key passed-in at the build command
-RUN --mount=type=secret,id=master_key,dst=/home/config/master.key.tmp \
-  cp /home/config/master.key.tmp /home/config/master.key
+# Create the master key passed-in at the build command - uncomment ONLY if testing image locally
+#RUN --mount=type=secret,id=master_key,dst=/home/config/master.key.tmp \
+#  cp /home/config/master.key.tmp /home/config/master.key
 
 # Copy prebuilt gems
 COPY --from=production_gems_and_assets $GEM_HOME $GEM_HOME
@@ -133,7 +133,9 @@ COPY . .
 COPY --from=production_gems_and_assets /home/public/assets /home/public/assets
 COPY --from=production_gems_and_assets /home/public/packs /home/public/packs
 
-ENTRYPOINT export RAILS_MASTER_KEY=$(cat /home/config/master.key) \
-  && bundle exec puma -C config/puma.rb
+# Uncomment the following and comment out the second ENTRYPOINT if testing image locally
+#ENTRYPOINT export RAILS_MASTER_KEY=$(cat /home/config/master.key) \
+#  && bundle exec puma -C config/puma.rb
+ENTRYPOINT bundle exec puma -C config/puma.rb
 
 USER root
