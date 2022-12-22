@@ -31,10 +31,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GHCR_TOKEN }}
           
-      #- name: Deploy k8s services
-      #  run: kubectl -n ${{ env.K8S_NAMESPACE }} apply -f k8s/learn-rails-app-svc.yaml
+      - name: Deploy k8s services
+        run: kubectl -n ${{ env.K8S_NAMESPACE }} apply -f k8s/learn-rails-app-svc.yaml
 
       - name: Deploy app
         run: |
           sed -i 's/{{ IMAGE }}/${{ env.IMAGE }}/g' k8s/learn-rails-app-deployment.yaml
-          cat k8s/learn-rails-app-deployment.yaml
+          kubectl -n ${{ env.K8S_NAMESPACE }} apply -f k8s/learn-rails-app-deployment.yaml
