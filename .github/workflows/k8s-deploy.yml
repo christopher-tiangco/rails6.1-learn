@@ -36,5 +36,5 @@ jobs:
 
       - name: Deploy app
         run: |
-          sed -i 's/{{ IMAGE }}/{{ env.IMAGE }}/g' k8s/learn-rails-app-deployment.yaml
+          sed -i 's/{{ IMAGE }}/${{ env.IMAGE }}/g' k8s/learn-rails-app-deployment.yaml
           cat k8s/learn-rails-app-deployment.yaml

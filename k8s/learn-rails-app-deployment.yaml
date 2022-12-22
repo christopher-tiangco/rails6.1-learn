@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: learn-rails-app
-        image: ${{ IMAGE }}
+        image: {{ IMAGE }}
         ports:
         - containerPort: 3000
         env:
