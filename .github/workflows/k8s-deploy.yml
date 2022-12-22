@@ -37,4 +37,4 @@ jobs:
       - name: Deploy app
         run: |
           sed -i 's/{{ IMAGE }}/${{ env.DOCKER_REGISTRY}}\/${{ github.actor }}\/${{ env.DOCKER_REPOSITORY }}:${{ env.IMAGE }}/g' k8s/learn-rails-app-deployment.yaml
-          cat k8s/learn-rails-app-deployment.yaml
+          kubectl -n ${{ env.K8S_NAMESPACE }} apply -f k8s/learn-rails-app-deployment.yaml
