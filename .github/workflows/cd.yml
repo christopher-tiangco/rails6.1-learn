@@ -1,16 +1,17 @@
 name: Build Production Image
 
 on:
-  #push:
-  #  branches: [ "master" ]
+  push:
+    branches: [ "master" ]
   #pull_request:
   #  branches: [ "master" ]
 
   workflow_dispatch:
   
 env:
-  DOCKER_REGISTRY: ghcr.io/christopher-tiangco
+  DOCKER_REGISTRY: ghcr.io
   DOCKER_REPOSITORY: rails6.1
+  K8S_NAMESPACE: learn-rails
 
 jobs:
   build:
@@ -36,7 +37,7 @@ jobs:
       - name: Login to ghcr.io
         uses: docker/login-action@v2
         with:
-          registry: ghcr.io
+          registry: ${{ env.DOCKER_REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GHCR_TOKEN }}
 
@@ -56,10 +57,38 @@ jobs:
             "master_key=${{ secrets.RAILS_MASTER_KEY }}"
           platforms: linux/arm64,linux/amd64
           push: true
-          tags: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_REPOSITORY }}:${{ env.IMAGE_TAG }}
+          tags: ${{ env.DOCKER_REGISTRY }}/${{ github.actor }}/${{ env.DOCKER_REPOSITORY }}:${{ env.IMAGE_TAG }}
           file: docker/Dockerfile
           target: production
       - name: Move Cache
         run: |
           rm -rf ${{ env.BUILD_CACHE }}
           mv ${{ env.BUILD_CACHE_NEW }} ${{ env.BUILD_CACHE }}
+    outputs:
+      IMAGE_TAG: ${{ env.IMAGE_TAG }}
+
+  deploy-to-k8s:
+    runs-on: ubuntu-latest
+    needs: [ build ]
+    steps:
+      - uses: actions/checkout@v3
+      
+      - uses: tale/kubectl-action@v1
+        with:
+          base64-kube-config: ${{ secrets.KUBE_CONFIG }}
+          
+      - name: Login to ghcr.io
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.DOCKER_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_TOKEN }}
+          
+      - name: Deploy k8s services
+        run: kubectl -n ${{ env.K8S_NAMESPACE }} apply -f k8s/${{ env.K8S_NAMESPACE }}-app-svc.yaml
+
+      - name: Deploy app
+        run: |
+          sed -i 's/{{ IMAGE }}/${{ env.DOCKER_REGISTRY}}\/${{ github.actor }}\/${{ env.DOCKER_REPOSITORY }}:${{ needs.build.outputs.IMAGE_TAG }}/g' k8s/${{ env.K8S_NAMESPACE }}-app-deployment.yaml
+          kubectl -n ${{ env.K8S_NAMESPACE }} apply -f k8s/${{ env.K8S_NAMESPACE }}-app-deployment.yaml
+  
