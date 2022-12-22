@@ -12,7 +12,7 @@ env:
   DOCKER_REGISTRY: ghcr.io/christopher-tiangco
   DOCKER_REPOSITORY: rails6.1
   K8S_NAMESPACE: learn-rails
-  IMAGE: ghcr.io/christopher-tiangco/rails6.1:learn-2022-12-22_08-25-01_utc
+  IMAGE: rails6.1:learn-2022-12-22_08-25-01_utc
 
 jobs:
   deploy:
