@@ -1,0 +1,25 @@
+name: K8s deployment
+
+on:
+#  push:
+#    branches: [ "master" ]
+#  pull_request:
+#    branches: [ "master" ]
+
+  workflow_dispatch:
+  
+env:
+  DOCKER_REGISTRY: ghcr.io/christopher-tiangco
+  DOCKER_REPOSITORY: rails6.1
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to ghcr.io
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_TOKEN }}
+
