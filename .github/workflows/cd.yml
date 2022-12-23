@@ -73,6 +73,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       
+      - name: Setup Ruby 2.7.4
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.7.4
+          bundler-cache: true
+      
       - uses: tale/kubectl-action@v1
         with:
           base64-kube-config: ${{ secrets.KUBE_CONFIG }}
@@ -83,6 +89,12 @@ jobs:
           registry: ${{ env.DOCKER_REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GHCR_TOKEN }}
+          
+      - name: Run database migrations
+        env:
+          RAILS_ENV: production
+          DATABASE_URL: ${{ secrets.POSTGRES_PRODUCTION_URI }}
+        run: bundle exec bin/rails db:migrate
           
       - name: Deploy k8s services
         run: kubectl -n ${{ env.K8S_NAMESPACE }} apply -f k8s/${{ env.K8S_NAMESPACE }}-app-svc.yaml
@@ -98,5 +110,5 @@ jobs:
           sed -i 's/{{ IMAGE }}/${{ env.DOCKER_REGISTRY}}\/${{ github.actor }}\/${{ env.DOCKER_REPOSITORY }}:${{ needs.build.outputs.IMAGE_TAG }}/g' k8s/${{ env.K8S_NAMESPACE }}-app-deployment.yaml
           kubectl -n ${{ env.K8S_NAMESPACE }} apply -f k8s/${{ env.K8S_NAMESPACE }}-app-deployment.yaml
   
-      - name: Run migrations on the first app pod
-        run: kubectl -n ${{ env.K8S_NAMESPACE }} exec $(kubectl -n ${{ env.K8S_NAMESPACE }} get pods -o json | jq -r '.items[0].metadata.name') -- bash -c 'cd /home && bundle exec bin/rails db:migrate'
+      #- name: Run migrations on the first app pod
+      #  run: kubectl -n ${{ env.K8S_NAMESPACE }} exec $(kubectl -n ${{ env.K8S_NAMESPACE }} get pods -o json | jq -r '.items[0].metadata.name') -- bash -c 'cd /home && bundle exec bin/rails db:migrate'
