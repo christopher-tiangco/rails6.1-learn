@@ -93,6 +93,7 @@ jobs:
       - name: Run database migrations
         env:
           RAILS_ENV: production
+          RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
           DATABASE_URL: ${{ secrets.POSTGRES_PRODUCTION_URI }}
         run: bundle exec bin/rails db:migrate
           
