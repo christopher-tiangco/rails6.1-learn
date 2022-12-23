@@ -1,4 +1,4 @@
-name: Build Production Image
+name: Build / Deploy Production App
 
 on:
   push:
@@ -86,6 +86,12 @@ jobs:
           
       - name: Deploy k8s services
         run: kubectl -n ${{ env.K8S_NAMESPACE }} apply -f k8s/${{ env.K8S_NAMESPACE }}-app-svc.yaml
+        
+      - name: Create k8s secrets
+        run: |
+          kubectl -n ${{ env.K8S_NAMESPACE }} create secret docker-registry ghcr-secret --docker-server=${{ env.DOCKER_REGISTRY }} --docker-username=${{ github.actor }} --docker-password=${{ secrets.GHCR_TOKEN }}
+          kubectl -n ${{ env.K8S_NAMESPACE }} create secret generic rails-master-key --from-literal=rails_master_key='${{ secrets.RAILS_MASTER_KEY }}'
+          kubectl -n ${{ env.K8S_NAMESPACE }} create secret generic postgres-production-uri --from-literal=postgres_production_uri='${{ secrets.POSTGRES_PRODUCTION_URI }}'
 
       - name: Deploy app
         run: |

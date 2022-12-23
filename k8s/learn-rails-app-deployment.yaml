@@ -24,5 +24,11 @@ spec:
                 name: rails-master-key
                 key: rails_master_key
                 optional: false
+          - name: DATABASE_URL
+            valueFrom:
+              secretKeyRef:
+                name: postgres-production-uri
+                key: postgres_production_uri
+                optional: false
       imagePullSecrets:
       - name: ghcr-secret
