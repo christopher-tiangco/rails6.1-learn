@@ -98,3 +98,5 @@ jobs:
           sed -i 's/{{ IMAGE }}/${{ env.DOCKER_REGISTRY}}\/${{ github.actor }}\/${{ env.DOCKER_REPOSITORY }}:${{ needs.build.outputs.IMAGE_TAG }}/g' k8s/${{ env.K8S_NAMESPACE }}-app-deployment.yaml
           kubectl -n ${{ env.K8S_NAMESPACE }} apply -f k8s/${{ env.K8S_NAMESPACE }}-app-deployment.yaml
   
+      - name: Run migrations on the first app pod
+        run: kubectl -n ${{ env.K8S_NAMESPACE }} exec -it $(kubectl -n ${{ env.K8S_NAMESPACE }} get pods -o json | jq -r '.items[0].metadata.name') bundle exec bin/rails db:migrate
