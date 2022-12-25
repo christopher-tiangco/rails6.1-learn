@@ -73,22 +73,15 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       
-      - name: Setup Ruby 2.7.4
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 2.7.4
-          bundler-cache: true
+      # - name: Setup Ruby 2.7.4
+      #   uses: ruby/setup-ruby@v1
+      #   with:
+      #     ruby-version: 2.7.4
+      #     bundler-cache: true
       
       - uses: tale/kubectl-action@v1
         with:
           base64-kube-config: ${{ secrets.KUBE_CONFIG }}
-          
-      - name: Login to ghcr.io
-        uses: docker/login-action@v2
-        with:
-          registry: ${{ env.DOCKER_REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_TOKEN }}
           
       - name: Run database migrations
         env:
