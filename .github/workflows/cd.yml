@@ -73,11 +73,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       
-      # - name: Setup Ruby 2.7.4
-      #   uses: ruby/setup-ruby@v1
-      #   with:
-      #     ruby-version: 2.7.4
-      #     bundler-cache: true
+      - name: Setup Ruby 2.7.4
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.7.4
+          bundler-cache: true
       
       - uses: tale/kubectl-action@v1
         with:
