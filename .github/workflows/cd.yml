@@ -12,6 +12,7 @@ env:
   DOCKER_REGISTRY: ghcr.io
   DOCKER_REPOSITORY: rails6.1
   K8S_NAMESPACE: learn-rails
+  K8S_CONFIG_GITHUB_REPOSITORY: rails6.1-learn-argo-cd
 
 jobs:
   build:
@@ -79,9 +80,11 @@ jobs:
           ruby-version: 2.7.4
           bundler-cache: true
       
-      - uses: tale/kubectl-action@v1
-        with:
-          base64-kube-config: ${{ secrets.KUBE_CONFIG }}
+      # Uncomment if directly deploying to the k8s cluster and NOT using gitops (ArgoCD)
+      #- name: Setup kubectl
+      #- uses: tale/kubectl-action@v1
+      #  with:
+      #    base64-kube-config: ${{ secrets.KUBE_CONFIG }}
           
       - name: Run database migrations
         env:
@@ -89,18 +92,30 @@ jobs:
           RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
           DATABASE_URL: ${{ secrets.POSTGRES_PRODUCTION_URI }}
         run: bundle exec bin/rails db:migrate
-          
-      - name: Deploy k8s services
-        run: kubectl -n ${{ env.K8S_NAMESPACE }} apply -f k8s/${{ env.K8S_NAMESPACE }}-app-svc.yaml
-        
-      - name: Create k8s secrets
-        run: |
-          kubectl -n ${{ env.K8S_NAMESPACE }} create secret docker-registry ghcr-secret --docker-server=${{ env.DOCKER_REGISTRY }} --docker-username=${{ github.actor }} --docker-password=${{ secrets.GHCR_TOKEN }} --save-config --dry-run=client -o yaml | kubectl apply -f -
-          kubectl -n ${{ env.K8S_NAMESPACE }} create secret generic rails-master-key --from-literal=rails_master_key='${{ secrets.RAILS_MASTER_KEY }}' --save-config --dry-run=client -o yaml | kubectl apply -f -
-          kubectl -n ${{ env.K8S_NAMESPACE }} create secret generic postgres-production-uri --from-literal=postgres_production_uri='${{ secrets.POSTGRES_PRODUCTION_URI }}' --save-config --dry-run=client -o yaml | kubectl apply -f -
-          kubectl -n ${{ env.K8S_NAMESPACE }} create secret generic redis-production-uri --from-literal=redis_production_uri='${{ secrets.REDIS_PRODUCTION_URI }}' --save-config --dry-run=client -o yaml | kubectl apply -f -
-          
-      - name: Deploy app
-        run: |
-          sed -i 's/{{ IMAGE }}/${{ env.DOCKER_REGISTRY}}\/${{ github.actor }}\/${{ env.DOCKER_REPOSITORY }}:${{ needs.build.outputs.IMAGE_TAG }}/g' k8s/${{ env.K8S_NAMESPACE }}-app-deployment.yaml
-          kubectl -n ${{ env.K8S_NAMESPACE }} apply -f k8s/${{ env.K8S_NAMESPACE }}-app-deployment.yaml
+      
+      # Uncomment if directly deploying to the k8s cluster and NOT using gitops (ArgoCD)
+      #- name: Deploy k8s services
+      #  run: kubectl -n ${{ env.K8S_NAMESPACE }} apply -f k8s/${{ env.K8S_NAMESPACE }}-app-svc.yaml
+      
+      # Uncomment if directly deploying to the k8s cluster and NOT using gitops (ArgoCD)
+      #- name: Create k8s secrets
+      #  run: |
+      #    kubectl -n ${{ env.K8S_NAMESPACE }} create secret docker-registry ghcr-secret --docker-server=${{ env.DOCKER_REGISTRY }} --docker-username=${{ github.actor }} --docker-password=${{ secrets.GHCR_TOKEN }} --save-config --dry-run=client -o yaml | kubectl apply -f -
+      #    kubectl -n ${{ env.K8S_NAMESPACE }} create secret generic rails-master-key --from-literal=rails_master_key='${{ secrets.RAILS_MASTER_KEY }}' --save-config --dry-run=client -o yaml | kubectl apply -f -
+      #    kubectl -n ${{ env.K8S_NAMESPACE }} create secret generic postgres-production-uri --from-literal=postgres_production_uri='${{ secrets.POSTGRES_PRODUCTION_URI }}' --save-config --dry-run=client -o yaml | kubectl apply -f -
+      #    kubectl -n ${{ env.K8S_NAMESPACE }} create secret generic redis-production-uri --from-literal=redis_production_uri='${{ secrets.REDIS_PRODUCTION_URI }}' --save-config --dry-run=client -o yaml | kubectl apply -f -
+      
+      # Uncomment if directly deploying to the k8s cluster and NOT using gitops (ArgoCD)
+      #- name: Deploy app
+      #  run: |
+      #    sed -i 's/{{ IMAGE }}/${{ env.DOCKER_REGISTRY}}\/${{ github.actor }}\/${{ env.DOCKER_REPOSITORY }}:${{ needs.build.outputs.IMAGE_TAG }}/g' k8s/${{ env.K8S_NAMESPACE }}-app-deployment.yaml
+      #    kubectl -n ${{ env.K8S_NAMESPACE }} apply -f k8s/${{ env.K8S_NAMESPACE }}-app-deployment.yaml
+      
+      # Comment out if directly deploying to the k8s cluster and NOT using gitops (ArgoCD)
+      - name: Update app container image at k8s config repo
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.GHCR_TOKEN }}
+          repository: ${{ github.actor }}/${{ env.K8S_CONFIG_GITHUB_REPOSITORY }}
+          event-type: new-image
+          client-payload: '{"image": "${{ env.DOCKER_REGISTRY}}\/${{ github.actor }}\/${{ env.DOCKER_REPOSITORY }}:${{ needs.build.outputs.IMAGE_TAG }}"}'
