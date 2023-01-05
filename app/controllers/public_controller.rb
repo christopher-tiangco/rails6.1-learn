@@ -2,6 +2,6 @@
 
 class PublicController < ApplicationController
   def index
-    render html: '<h1>Hello there! This is so awesome!!! I deployed on 12/25/2022 @ 12:47PM</h1>'
+    render html: '<h1>Hello there! This is so awesome!!! I deployed on 01/05/2023 @ 12:05AM</h1>'
   end
 end
