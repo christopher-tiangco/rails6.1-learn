@@ -41,7 +41,7 @@ RUN apt update && \
   dpkg-reconfigure --frontend noninteractive tzdata
 
 # Install NodeJs and Yarn
-RUN curl -sL https://deb.nodesource.com/setup_$NODE_MAJOR.x | bash - && \ 
+RUN curl -sL https://deb.nodesource.com/setup_14.x | grep -v '^[a-z]*_deprecation_warning$' | bash - && \ 
   apt update && apt install -y --no-install-recommends nodejs && \ 
   npm install -g yarn
 
